@@ -2,6 +2,7 @@ import { fabric } from "fabric"
 import FabricTool, { ConfigureCanvasProps } from "./fabrictool"
 
 class TextTool extends FabricTool {
+  // eslint-disable-next-line
   configureCanvas({}: ConfigureCanvasProps): () => void {
     this._canvas.isDrawingMode = false
     this._canvas.selection = false
@@ -34,4 +35,3 @@ class TextTool extends FabricTool {
 }
 
 export default TextTool
-

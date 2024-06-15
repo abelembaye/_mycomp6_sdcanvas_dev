@@ -9,7 +9,7 @@ import streamlit.components.v1 as components
 import streamlit.elements.image as st_image
 from PIL import Image
 
-_RELEASE = False  # True  # on packaging, pass this to True
+_RELEASE = False  # True  # #on packaging, change this to True
 
 if not _RELEASE:
     _component_func = components.declare_component(
@@ -142,7 +142,7 @@ def st_canvas(
         backgroundColor=background_color,
         backgroundImageURL=background_image_url,
         realtimeUpdateStreamlit=update_streamlit and (
-            drawing_mode != "polygon"),
+            drawing_mode != "polygon" and drawing_mode != "curve"),
         canvasHeight=height,
         canvasWidth=width,
         drawingMode=drawing_mode,
@@ -152,6 +152,7 @@ def st_canvas(
         key=key,
         default=None,
     )
+
     if component_value is None:
         return CanvasResult
 

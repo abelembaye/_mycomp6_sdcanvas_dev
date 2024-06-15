@@ -1,18 +1,24 @@
 import { fabric } from "fabric"
 import FabricTool, { ConfigureCanvasProps } from "./fabrictool"
+import * as d3 from "d3"
 
 class CurveTool extends FabricTool {
-  getType(): string {
-    return 'curve';
-  }
   isMouseDown: boolean = false
+  fillColor: string = "#ffffff00" //"#ffffff"
   strokeWidth: number = 10
   strokeColor: string = "#ffffff"
-  points: fabric.Point[] = []
+  startCircle: fabric.Circle = new fabric.Circle()
+  currentLine: fabric.Line = new fabric.Line()
+  currentPath: fabric.Path = new fabric.Path()
+  curvePath: fabric.Path = new fabric.Path()
+  _pathString: string = "M "
+  //controlPoints: { x: number; y: number }[] = []
+  controlPoints: number[][] = []
 
   configureCanvas({
     strokeWidth,
     strokeColor,
+    fillColor,
   }: ConfigureCanvasProps): () => void {
     this._canvas.isDrawingMode = false
     this._canvas.selection = false
@@ -20,58 +26,168 @@ class CurveTool extends FabricTool {
 
     this.strokeWidth = strokeWidth
     this.strokeColor = strokeColor
+    this.fillColor = fillColor
 
     this._canvas.on("mouse:down", (e: any) => this.onMouseDown(e))
     this._canvas.on("mouse:move", (e: any) => this.onMouseMove(e))
     this._canvas.on("mouse:up", (e: any) => this.onMouseUp(e))
     this._canvas.on("mouse:out", (e: any) => this.onMouseOut(e))
+    //this._canvas.on("mouse:dblclick", (e: any) => this.onMouseDoubleClick(e))
     return () => {
       this._canvas.off("mouse:down")
       this._canvas.off("mouse:move")
       this._canvas.off("mouse:up")
       this._canvas.off("mouse:out")
+      //this._canvas.off("mouse:dblclick")
     }
   }
 
   onMouseDown(o: any) {
     let canvas = this._canvas
     let _clicked = o.e["button"]
+    let _start = false
+    if (this._pathString === "M ") {
+      _start = true
+    }
+
     this.isMouseDown = true
     var pointer = canvas.getPointer(o.e)
-    this.points.push(new fabric.Point(pointer.x, pointer.y))
-    if (_clicked === 0 && this.points.length === 3) {
-      let curve = new fabric.Path(
-        `M ${this.points[0].x} ${this.points[0].y} Q ${this.points[1].x} ${this.points[1].y}, ${this.points[2].x} ${this.points[2].y}`,
-        {
-          strokeWidth: this.strokeWidth,
+    // agument to the control points
+    //this.controlPoints.push({ x: pointer.x, y: pointer.y })
+    this.controlPoints.push([pointer.x, pointer.y])
+    var points = [pointer.x, pointer.y, pointer.x, pointer.y]
+
+    canvas.remove(this.currentLine)
+    this.currentLine = new fabric.Line(points, {
+      strokeWidth: this.strokeWidth,
+      fill: this.strokeColor,
+      stroke: this.strokeColor,
+      originX: "center",
+      originY: "center",
+      selectable: false,
+      evented: false,
+    })
+    if (_clicked === 0) {
+      canvas.add(this.currentLine)
+    }
+
+    if (_start && _clicked === 0) {
+      // Initialize pathString
+      this._pathString += `${pointer.x} ${pointer.y} `
+      this.startCircle = new fabric.Circle({
+        left: pointer.x,
+        top: pointer.y,
+        originX: "center",
+        originY: "center",
+        strokeWidth: this.strokeWidth,
+        stroke: this.strokeColor,
+        fill: this.strokeColor,
+        selectable: false,
+        evented: false,
+        radius: this.strokeWidth,
+      })
+      canvas.add(this.startCircle)
+      _start = false
+    } else {
+      canvas.remove(this.currentPath)
+      if (_clicked === 0) {
+        //if left mouse clicked
+        // Update pathString
+        this._pathString += `L ${pointer.x} ${pointer.y} `
+      }
+      if (_clicked === 2) {
+        //if right mouse clicked, Close pathString
+        //this._pathString += "z"
+        canvas.remove(this.startCircle)
+        // Draw curve
+        console.log(
+          "Here is controPoints object:",
+          typeof this.controlPoints,
+          this.controlPoints
+        )
+        var lineGenerator = d3.line().curve(d3.curveCatmullRom.alpha(0.5)) // this is a d3 function when you pass an array of points it will return a string that represents the path of natural spline curve that passes through the points
+        //@ts-ignore
+        var curvepathData: string = lineGenerator(this.controlPoints)
+        console.log(
+          "Here is curvepathData object:",
+          typeof curvepathData,
+          curvepathData
+        )
+        this.curvePath = new fabric.Path(curvepathData, {
           fill: "",
-          stroke: this.strokeColor,
-          originX: "center",
-          originY: "center",
+          stroke: "blue",
+          strokeWidth: 3,
+          //hasControls: false,
+          //hasBorders: false,
+          //objectCaching: false,
           selectable: false,
           evented: false,
-        }
-      )
-      canvas.add(curve)
-      this.points = []
+        })
+        canvas.add(this.curvePath)
+        this.controlPoints = []
+      }
+    }
+    this.currentPath = new fabric.Path(this._pathString, {
+      strokeWidth: this.strokeWidth,
+      fill: "#ffffff00", //this.fillColor,
+      stroke: this.strokeColor,
+      originX: "center",
+      originY: "center",
+      selectable: false,
+      evented: false,
+    })
+    if (this.currentPath.width !== 0 && this.currentPath.height !== 0) {
+      canvas.add(this.currentPath)
+    }
+    if (_clicked === 2) {
+      this._pathString = "M "
+      canvas.remove(this.currentPath)
+      this.controlPoints = []
     }
   }
 
   onMouseMove(o: any) {
-    if (!this.isMouseDown || this.points.length !== 2) return
+    if (!this.isMouseDown) return
     let canvas = this._canvas
     var pointer = canvas.getPointer(o.e)
-    this.points[2] = new fabric.Point(pointer.x, pointer.y)
+    this.currentLine.set({ x2: pointer.x, y2: pointer.y })
+    this.currentLine.setCoords()
     canvas.renderAll()
   }
 
   onMouseUp(o: any) {
-    this.isMouseDown = false
+    this.isMouseDown = true
   }
 
   onMouseOut(o: any) {
     this.isMouseDown = false
   }
-}
 
+  // onMouseDoubleClick(o: any) {
+  //   let canvas = this._canvas
+  //   // Double click adds two more points at the end, so we have to move back twice more...
+  //   for (let i = 0; i < 3; i++) {
+  //     let _last_pt_idx = this._pathString.lastIndexOf("L")
+  //     if (_last_pt_idx === -1) {
+  //       this._pathString = "M "
+  //       canvas.remove(this.startCircle)
+  //     } else {
+  //       this._pathString = this._pathString.slice(0, _last_pt_idx)
+  //     }
+  //   }
+
+  //   canvas.remove(this.currentLine)
+  //   canvas.remove(this.currentPath)
+  //   this.currentPath = new fabric.Path(this._pathString, {
+  //     strokeWidth: this.strokeWidth,
+  //     fill: "#ffffff00", //this.fillColor,
+  //     stroke: this.strokeColor,
+  //     originX: "center",
+  //     originY: "center",
+  //     selectable: false,
+  //     evented: false,
+  //   })
+  //   canvas.add(this.currentPath)
+  // }
+}
 export default CurveTool

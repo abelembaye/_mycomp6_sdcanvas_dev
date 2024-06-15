@@ -85,11 +85,12 @@ class PolygonTool extends FabricTool {
     } else {
       canvas.remove(this.currentPath)
       if (_clicked === 0) {
+        //if left mouse clicked
         // Update pathString
         this._pathString += `L ${pointer.x} ${pointer.y} `
       }
       if (_clicked === 2) {
-        // Close pathString
+        //if right mouse clicked, Close pathString
         this._pathString += "z"
         canvas.remove(this.startCircle)
       }

@@ -54,7 +54,7 @@ class LineTool extends FabricTool {
     if (!this.isMouseDown) return
     let canvas = this._canvas
     var pointer = canvas.getPointer(o.e)
-    this.currentLine.set({ x2: pointer.x, y2: pointer.y })
+    this.currentLine.set({ x2: pointer.x, y2: pointer.y }) //takes the first point's coordinates from mouse down event
     this.currentLine.setCoords()
     canvas.renderAll()
   }

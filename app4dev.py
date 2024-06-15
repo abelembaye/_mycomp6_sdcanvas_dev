@@ -1,3 +1,16 @@
+# -----------------------------------------------------------------------------------
+# Initialize and run the component template frontend in webpack:
+# cd ./streamlit_drawable_canvas/frontend
+# npm install # install dependencies # done once
+# npm start  #the frontend in the development mode
+# conda deactivate
+# From a separate terminal, run the template's Streamlit app (python file):
+# cd _mycomp6_sdcanvas_dev  # this is were the app.py is
+# conda activate streamlit-drawable-canvas
+# pip install -e . # install template as editable package (dont forget the "period") (assuming the venv't is activated already), which is done once
+#  streamlit run app4dev.py
+# python setup.py sdist bdist_wheel # to create a wheel file
+
 import pandas as pd  # pip install pandas
 from PIL import Image  # pip install pillow
 import streamlit as st  # pip install streamlit
@@ -6,9 +19,11 @@ from streamlit_drawable_canvas import st_canvas
 
 # Specify canvas parameters in application
 drawing_mode = st.sidebar.selectbox(
-    "Drawing tool:", ("point",  # "freedraw",
-                      "line",  "curve", "text",
-                      "rect", "polygon",  # "circle", "polygon",
+    "Drawing tool:", ("line", "coordinate",  # "grid",  # "freedraw",
+                      "curve", "singlearrowhead",
+                      "doublearrowhead",
+                      "text",  # "rect",
+                      "polygon", "point",  # "circle",
                       "transform")
 )
 
@@ -34,6 +49,7 @@ canvas_result = st_canvas(
     background_image=Image.open(bg_image) if bg_image else None,
     update_streamlit=realtime_update,
     height=400,
+    width=700,
     drawing_mode=drawing_mode,
     # text=label,  # Use the entered label as the text to be drawn
     point_display_radius=point_display_radius if drawing_mode == 'point' else 0,
@@ -57,8 +73,8 @@ if canvas_result.json_data is not None:
 # npm install # install dependencies # done once
 # npm start  #the frontend in the development mode
 
-# From a separate terminal, run the template's Streamlit app (python file):
-# conda activate streamlit-drawable-canvas
+# From a separate terminal, run the template's Streamlit app (python file)
 # cd _mycomp6_sdcanvas_dev  # this is were the app.py is
+# conda activate streamlit-drawable-canvas
 # pip install -e . # install template as editable package (dont forget the "period") (assuming the venv't is activated already) # done once
-#  streamlit run ./app2.py
+#  streamlit run app4dev.py

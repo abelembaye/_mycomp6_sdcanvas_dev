@@ -2,10 +2,8 @@
 # Python - https://github.com/github/gitignore/blob/master/Python.gitignore
 ########################################################################
 app.py
-cubic_splins.py
-cubic_splins2.py
-cubic_splins3.py
-output.html
+Z_copypaste.py
+Z_packaging4production_upto_Github_publishing.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

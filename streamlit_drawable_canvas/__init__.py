@@ -9,7 +9,7 @@ import streamlit.components.v1 as components
 import streamlit.elements.image as st_image
 from PIL import Image
 
-_RELEASE = False  # True  # #on packaging, change this to True
+_RELEASE = True  # False  # True  # #  #on packaging, change this to True
 
 if not _RELEASE:
     _component_func = components.declare_component(
@@ -66,6 +66,7 @@ def st_canvas(
     initial_drawing: dict = None,
     display_toolbar: bool = True,
     point_display_radius: int = 3,
+    scaleFactors: list = [1, 1, 1, 1],  # <-- Add scaleFactors parameter
     key=None,
 ) -> CanvasResult:
     """Create a drawing canvas in Streamlit app. Retrieve the RGBA image data into a 4D numpy array (r, g, b, alpha)
@@ -149,6 +150,7 @@ def st_canvas(
         initialDrawing=initial_drawing,
         displayToolbar=display_toolbar,
         displayRadius=point_display_radius,
+        scaleFactors=scaleFactors,  # <-- Add scaleFactors here
         key=key,
         default=None,
     )

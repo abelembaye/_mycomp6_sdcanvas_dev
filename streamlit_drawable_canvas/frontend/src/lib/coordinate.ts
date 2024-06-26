@@ -8,28 +8,29 @@ class CoordinateTool extends FabricTool {
   horizontalLine: fabric.Line | null = null
   verticalLine: fabric.Line | null = null
   coordinateCircle: fabric.Circle | null = null
-  coordinatesText: fabric.Text | null = null
-
+  //coordinatesText: fabric.Text | null = null
+  coordinatesTextX: fabric.Text | null = null
+  coordinatesTextY: fabric.Text | null = null
   tempHorizontalLine: fabric.Line | null = null
   tempVerticalLine: fabric.Line | null = null
   tempCoordinateCircle: fabric.Circle | null = null
   tempCoordinatesText: fabric.Text | null = null
-
-  scaleFactorX: number
-  scaleFactorY: number
-
-  constructor(canvas: fabric.Canvas) {
-    super(canvas)
-
-    const urlParams = new URLSearchParams(window.location.search)
-    this.scaleFactorX = parseFloat(urlParams.get("scale_factor_x") || "1")
-    this.scaleFactorY = parseFloat(urlParams.get("scale_factor_y") || "1")
-  }
+  coordinates_group: fabric.Group = new fabric.Group()
+  tempCoordinates_group: fabric.Group = new fabric.Group()
+  scaleFactors: number[] = [1, 1, 1, 1] // Define scaleFactors as an array
+  canvasWidth: number = 1 // Define canvasHeight as a number
+  canvasHeight: number = 1
 
   configureCanvas({
     strokeWidth,
     strokeColor,
+    scaleFactors,
+    canvasHeight,
+    canvasWidth, // Ensure canvasHeight is destructured
   }: ConfigureCanvasProps): () => void {
+    this.scaleFactors = scaleFactors // Assign scaleFactors to this.scaleFactors
+    this.canvasHeight = canvasHeight // Assign canvasHeight to this.canvasHeight
+    this.canvasWidth = canvasWidth
     this._canvas.isDrawingMode = false
     this._canvas.selection = false
     this._canvas.forEachObject((o) => (o.selectable = o.evented = false))
@@ -50,21 +51,13 @@ class CoordinateTool extends FabricTool {
     }
   }
 
-  getScaledCoordinates(pointer: { x: number; y: number }) {
-    return {
-      x: pointer.x * this.scaleFactorX,
-      y: pointer.y * this.scaleFactorY,
-    }
-  }
-
   onMouseDown(o: any) {
-    if (o.e.button === 2) {
+    if (o.e.button === 0) {
       this.isMouseDown = true
       let canvas = this._canvas
       let pointer = canvas.getPointer(o.e)
-      let scaledPointer = this.getScaledCoordinates(pointer)
-      this.updateLinesAndCircle(scaledPointer.x, scaledPointer.y)
-      this.drawLinesAndCoordinates(scaledPointer.x, scaledPointer.y)
+      //this.updateLinesAndCircle(pointer.x, pointer.y)
+      this.drawLinesAndCoordinates(pointer.x, pointer.y)
     }
   }
 
@@ -72,19 +65,17 @@ class CoordinateTool extends FabricTool {
     let canvas = this._canvas
     let pointer = canvas.getPointer(o.e)
     if (!this.isMouseDown) {
-      let scaledPointer = this.getScaledCoordinates(pointer)
-      this.drawTemporaryLinesAndCoordinates(scaledPointer.x, scaledPointer.y)
+      this.drawTemporaryLinesAndCoordinates(pointer.x, pointer.y)
     }
   }
 
   onMouseUp(o: any) {
-    if (o.e.button === 2) {
+    if (o.e.button === 0) {
       this.isMouseDown = false
-      let canvas = this._canvas
-      let pointer = canvas.getPointer(o.e)
-      let scaledPointer = this.getScaledCoordinates(pointer)
+      //let canvas = this._canvas
+      //let pointer = canvas.getPointer(o.e)
       this.clearTemporaryObjects()
-      this.drawLinesAndCoordinates(scaledPointer.x, scaledPointer.y)
+      //this.drawLinesAndCoordinates(pointer.x, pointer.y)
     }
   }
 
@@ -96,17 +87,18 @@ class CoordinateTool extends FabricTool {
     let canvas = this._canvas
     let strokeWidth = this.strokeWidth
     let strokeColor = "rgba(99, 99, 156, .75)"
-    // Ensure canvas.width and canvas.height are treated as numbers
+    let canvasHeight = this.canvasHeight
+    let canvasWidth = this.canvasWidth
 
-    this.horizontalLine = new fabric.Line([0, y, x, y], {
+    this.horizontalLine = new fabric.Line([0.12 * canvasWidth, y, x, y], {
       stroke: strokeColor,
       strokeWidth: strokeWidth,
       selectable: false,
       evented: false,
       strokeDashArray: [10, 5],
     })
-    const canvasHeight = canvas.height ?? 0
-    this.verticalLine = new fabric.Line([x, y, x, canvasHeight], {
+
+    this.verticalLine = new fabric.Line([x, y, x, 0.9 * canvasHeight], {
       stroke: strokeColor,
       strokeWidth: strokeWidth,
       selectable: false,
@@ -125,11 +117,22 @@ class CoordinateTool extends FabricTool {
       originY: "center",
     })
 
-    this.coordinatesText = new fabric.Text(
-      `(${x.toFixed(0)}, ${y.toFixed(0)})`,
+    let xx =
+      ((this.scaleFactors[1] - this.scaleFactors[0]) *
+        (x - this.scaleFactors[2] * canvasWidth)) /
+      (this.scaleFactors[3] * canvasWidth)
+    let yy =
+      this.scaleFactors[1] -
+      ((this.scaleFactors[1] - this.scaleFactors[0]) *
+        (y - this.scaleFactors[2] * canvasHeight)) /
+        (this.scaleFactors[3] * canvasHeight)
+
+    this.coordinatesTextX = new fabric.Text(
+      `${xx.toFixed(0)}`,
+
       {
-        left: x + 10,
-        top: y + 10,
+        left: x + 0.01 * canvasWidth, //x + 10,
+        top: 0.85 * canvasHeight, //y + 10,
         fill: strokeColor,
         fontSize: 14,
         selectable: false,
@@ -137,63 +140,47 @@ class CoordinateTool extends FabricTool {
       }
     )
 
-    canvas.add(this.horizontalLine)
-    canvas.add(this.verticalLine)
-    canvas.add(this.coordinateCircle)
-    canvas.add(this.coordinatesText)
+    this.coordinatesTextY = new fabric.Text(
+      `${yy.toFixed(0)}`,
+
+      {
+        left: 0.13 * canvasWidth, //x + 10,
+        top: y - 0.035 * canvasHeight, //y + 10,
+        fill: strokeColor,
+        fontSize: 14,
+        selectable: false,
+        evented: false,
+      }
+    )
+
+    this.coordinates_group = new fabric.Group(
+      [
+        this.horizontalLine,
+        this.verticalLine,
+        this.coordinateCircle,
+        this.coordinatesTextX,
+        this.coordinatesTextY,
+      ],
+      {
+        selectable: false,
+        evented: false,
+      }
+    )
+
+    canvas.add(this.coordinates_group)
     canvas.renderAll()
-  }
-
-  updateLinesAndCircle(x: number, y: number) {
-    if (
-      this.horizontalLine &&
-      this.verticalLine &&
-      this.coordinateCircle &&
-      this.coordinatesText
-    ) {
-      let canvas = this._canvas
-
-      this.horizontalLine.set({
-        x2: x,
-        y1: y,
-        y2: y,
-      })
-
-      this.verticalLine.set({
-        x1: x,
-        x2: x,
-        y1: y,
-        y2: canvas.height,
-      })
-
-      this.coordinateCircle.set({
-        left: x,
-        top: y,
-      })
-
-      this.coordinatesText.set({
-        left: x + 10,
-        top: y + 10,
-        text: `(${x.toFixed(0)}, ${y.toFixed(0)})`,
-      })
-
-      this.horizontalLine.setCoords()
-      this.verticalLine.setCoords()
-      this.coordinateCircle.setCoords()
-      this.coordinatesText.setCoords()
-
-      canvas.renderAll()
-    }
   }
 
   drawTemporaryLinesAndCoordinates(x: number, y: number) {
     let canvas = this._canvas
     let strokeWidth = this.strokeWidth
-    let strokeColor = "rgba(255, 255, 255, 0.5)"
-
+    let strokeColor = "rgba(51, 0, 20, 0.5)"
+    let canvasHeight = this.canvasHeight
+    let canvasWidth = this.canvasWidth
     this.clearTemporaryObjects()
 
-    this.tempHorizontalLine = new fabric.Line([0, y, x, y], {
+    this.tempHorizontalLine = new fabric.Line([0.12 * canvasWidth, y, x, y], {
+      //0 is the default value for the x1 coordinate
       stroke: strokeColor,
       strokeWidth: strokeWidth,
       selectable: false,
@@ -201,8 +188,7 @@ class CoordinateTool extends FabricTool {
       strokeDashArray: [10, 5],
     })
 
-    const canvasHeight = canvas.height ?? 0
-    this.tempVerticalLine = new fabric.Line([x, y, x, canvasHeight], {
+    this.tempVerticalLine = new fabric.Line([x, y, x, 0.9 * canvasHeight], {
       stroke: strokeColor,
       strokeWidth: strokeWidth,
       selectable: false,
@@ -221,8 +207,18 @@ class CoordinateTool extends FabricTool {
       originY: "center",
     })
 
+    let xx =
+      ((this.scaleFactors[1] - this.scaleFactors[0]) *
+        (x - this.scaleFactors[2] * canvasWidth)) /
+      (this.scaleFactors[3] * canvasWidth)
+    let yy =
+      this.scaleFactors[1] -
+      ((this.scaleFactors[1] - this.scaleFactors[0]) *
+        (y - this.scaleFactors[2] * canvasHeight)) /
+        (this.scaleFactors[3] * canvasHeight)
     this.tempCoordinatesText = new fabric.Text(
-      `(${x.toFixed(0)}, ${y.toFixed(0)})`,
+      `(${xx.toFixed(0)}, ${yy.toFixed(0)})`,
+      //`(${x.toFixed(0)}, ${y.toFixed(0)})`,
       {
         left: x + 10,
         top: y + 10,
@@ -233,24 +229,27 @@ class CoordinateTool extends FabricTool {
       }
     )
 
-    canvas.add(this.tempHorizontalLine)
-    canvas.add(this.tempVerticalLine)
-    canvas.add(this.tempCoordinateCircle)
-    canvas.add(this.tempCoordinatesText)
+    this.tempCoordinates_group = new fabric.Group(
+      [
+        this.tempHorizontalLine,
+        this.tempVerticalLine,
+        this.tempCoordinateCircle,
+        this.tempCoordinatesText,
+      ],
+      {
+        selectable: false,
+        evented: false,
+      }
+    )
+
+    canvas.add(this.tempCoordinates_group)
     canvas.renderAll()
   }
 
   clearTemporaryObjects() {
     let canvas = this._canvas
-    if (this.tempHorizontalLine) canvas.remove(this.tempHorizontalLine)
-    if (this.tempVerticalLine) canvas.remove(this.tempVerticalLine)
-    if (this.tempCoordinateCircle) canvas.remove(this.tempCoordinateCircle)
-    if (this.tempCoordinatesText) canvas.remove(this.tempCoordinatesText)
-
-    this.tempHorizontalLine = null
-    this.tempVerticalLine = null
-    this.tempCoordinateCircle = null
-    this.tempCoordinatesText = null
+    if (this.tempCoordinates_group) canvas.remove(this.tempCoordinates_group)
+    //this.tempCoordinates_group= null
   }
 }
 

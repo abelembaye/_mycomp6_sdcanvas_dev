@@ -103,23 +103,6 @@ class SingleArrowHeadTool extends FabricTool {
       angle: angle * (180 / Math.PI) + 90, // Convert the angle to degrees and add 90 to align with the line
     })
 
-    //// Create a triangle at the start of the line
-    // this.startTriangle = new fabric.Triangle({
-    //   left: this.currentLine.x1, //+ this.currentLine.left,
-    //   top: this.currentLine.y1, //+ this.currentLine.top,
-    //   originX: "center",
-    //   originY: "center",
-    //   strokeWidth: this.strokeWidth,
-    //   stroke: this.strokeColor,
-    //   fill: this.strokeColor,
-    //   selectable: false,
-    //   evented: false,
-    //   width: this.strokeWidth * 5,
-    //   height: this.strokeWidth * 5,
-    //   angle: angle * (180 / Math.PI) - 90, // Convert the angle to degrees and subtract 90 to align with the line
-    // })
-
-    // Create a group and add the line and the triangles to it
     this.singlearrow = new fabric.Group(
       [
         this.currentLine, //this.startTriangle,
@@ -142,10 +125,6 @@ class SingleArrowHeadTool extends FabricTool {
     canvas.remove(this.singlearrow)
     canvas.add(updatedgroup)
     canvas.renderAll()
-    // if (this.currentLine.width === 0 && this.currentLine.height === 0) {
-    //   canvas.remove(updatedgroup)
-    // }
-    //canvas.remove(this.currentLine)
   }
 
   onMouseOut(o: any) {

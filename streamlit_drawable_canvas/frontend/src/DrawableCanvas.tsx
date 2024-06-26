@@ -43,6 +43,7 @@ export interface PythonArgs {
   initialDrawing: Object
   displayToolbar: boolean
   displayRadius: number
+  scaleFactors: number[] // Add scaleFactors here
 }
 
 /**
@@ -62,6 +63,7 @@ const DrawableCanvas = ({ args }: ComponentProps) => {
     displayRadius,
     initialDrawing,
     displayToolbar,
+    scaleFactors, // Destructure scaleFactors from args
   }: PythonArgs = args
 
   /**
@@ -123,10 +125,10 @@ const DrawableCanvas = ({ args }: ComponentProps) => {
    */
   useEffect(() => {
     if (backgroundImageURL) {
-      var bgImage = new Image();
-      bgImage.onload = function() {
-        backgroundCanvas.getContext().drawImage(bgImage, 0, 0);
-      };
+      var bgImage = new Image()
+      bgImage.onload = function () {
+        backgroundCanvas.getContext().drawImage(bgImage, 0, 0) //0.5, 0.5
+      }
       const baseUrl = getStreamlitBaseUrl() ?? ""
       bgImage.src = baseUrl + backgroundImageURL
     }
@@ -160,7 +162,10 @@ const DrawableCanvas = ({ args }: ComponentProps) => {
       fillColor: fillColor,
       strokeWidth: strokeWidth,
       strokeColor: strokeColor,
-      displayRadius: displayRadius
+      displayRadius: displayRadius,
+      scaleFactors: scaleFactors,
+      canvasHeight: canvasHeight,
+      canvasWidth: canvasWidth,
     })
 
     canvas.on("mouse:up", (e: any) => {
@@ -188,6 +193,9 @@ const DrawableCanvas = ({ args }: ComponentProps) => {
     fillColor,
     drawingMode,
     initialDrawing,
+    scaleFactors, // <-- Added dependency
+    canvasHeight,
+    canvasWidth,
     saveState,
     forceStreamlitUpdate,
   ])

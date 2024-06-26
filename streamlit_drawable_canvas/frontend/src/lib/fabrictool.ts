@@ -1,10 +1,13 @@
 import { fabric } from "fabric"
 
 export interface ConfigureCanvasProps {
-    fillColor: string
-    strokeWidth: number
-    strokeColor: string
-    displayRadius: number
+  fillColor: string
+  strokeWidth: number
+  strokeColor: string
+  displayRadius: number
+  scaleFactors: number[] // Add scaleFactors here
+  canvasHeight: number // Add this line
+  canvasWidth: number // Add this line
 }
 
 /**
@@ -12,7 +15,6 @@ export interface ConfigureCanvasProps {
  */
 abstract class FabricTool {
   protected _canvas: fabric.Canvas
-
   /**
    * Pass Fabric canvas by reference so tools can configure it
    */

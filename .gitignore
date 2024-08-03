@@ -1,0 +1,8 @@
+# will be ignored by git
+.github
+.vscode
+CHANGELOG.md
+ReadMe2.txt
+Z_Build&Publish a Component - Streamlit Docs.pdf
+Z_coordinates2.ts
+Z_copypaste.py

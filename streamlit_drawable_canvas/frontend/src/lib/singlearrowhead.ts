@@ -113,7 +113,14 @@ class SingleArrowHeadTool extends FabricTool {
         evented: false,
       }
     )
-
+    // Add custom property to identify the tool
+    this.singlearrow.toObject = (function (toObject) {
+      return function (this: fabric.Object) {
+        return fabric.util.object.extend(toObject.call(this), {
+          toolType: "SingleArrowHeadTool",
+        })
+      }
+    })(this.singlearrow.toObject)
     canvas.add(this.singlearrow)
     canvas.renderAll()
   }

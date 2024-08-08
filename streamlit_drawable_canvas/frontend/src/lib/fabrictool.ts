@@ -8,6 +8,7 @@ export interface ConfigureCanvasProps {
   scaleFactors: number[] // Add scaleFactors here
   canvasHeight: number // Add this line
   canvasWidth: number // Add this line
+  axes_and_labels: boolean
 }
 
 /**

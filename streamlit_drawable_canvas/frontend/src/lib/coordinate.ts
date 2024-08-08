@@ -17,7 +17,7 @@ class CoordinateTool extends FabricTool {
   tempCoordinatesText: fabric.Text | null = null
   coordinates_group: fabric.Group = new fabric.Group()
   tempCoordinates_group: fabric.Group = new fabric.Group()
-  scaleFactors: number[] = [1, 1, 1, 1] // Define scaleFactors as an array; this are initializers; the real ones are set in the frontend .py script
+  scaleFactors: number[] = [1, 1, 1, 1, 1, 1] // Define scaleFactors as an array; this are initializers; the real ones are set in the frontend .py script
   canvasWidth: number = 1 // Define canvasHeight as a number
   canvasHeight: number = 1
 
@@ -90,7 +90,7 @@ class CoordinateTool extends FabricTool {
     let canvasHeight = this.canvasHeight
     let canvasWidth = this.canvasWidth
 
-    this.horizontalLine = new fabric.Line([0.12 * canvasWidth, y, x, y], {
+    this.horizontalLine = new fabric.Line([this.scaleFactors[3], y, x, y], {
       stroke: strokeColor,
       strokeWidth: strokeWidth,
       selectable: false,
@@ -98,7 +98,7 @@ class CoordinateTool extends FabricTool {
       strokeDashArray: [10, 5],
     })
 
-    this.verticalLine = new fabric.Line([x, y, x, 0.9 * canvasHeight], {
+    this.verticalLine = new fabric.Line([x, y, x, 0.85 * canvasHeight], {
       stroke: strokeColor,
       strokeWidth: strokeWidth,
       selectable: false,
@@ -116,23 +116,24 @@ class CoordinateTool extends FabricTool {
       originX: "center",
       originY: "center",
     })
-
+    // converted coordinates
+    // scaleFactors = [xmax, ymax, bottom_margin, left_margin, top_margin, right_margin]
     let xx =
-      ((this.scaleFactors[1] - this.scaleFactors[0]) *
-        (x - this.scaleFactors[2] * canvasWidth)) /
-      (this.scaleFactors[3] * canvasWidth)
+      ((x - this.scaleFactors[3]) /
+        (canvasWidth - this.scaleFactors[3] - this.scaleFactors[5])) *
+      this.scaleFactors[0]
     let yy =
       this.scaleFactors[1] -
-      ((this.scaleFactors[1] - this.scaleFactors[0]) *
-        (y - this.scaleFactors[2] * canvasHeight)) /
-        (this.scaleFactors[3] * canvasHeight)
+      ((y - this.scaleFactors[4]) /
+        (canvasHeight - this.scaleFactors[4] - this.scaleFactors[2])) *
+        this.scaleFactors[1]
 
     this.coordinatesTextX = new fabric.Text(
       `${xx.toFixed(0)}`,
 
       {
         left: x + 0.01 * canvasWidth, //x + 10,
-        top: 0.85 * canvasHeight, //y + 10,
+        top: 0.8 * canvasHeight, //y + 10,
         fill: strokeColor,
         fontSize: 14,
         selectable: false,
@@ -188,7 +189,7 @@ class CoordinateTool extends FabricTool {
       strokeDashArray: [10, 5],
     })
 
-    this.tempVerticalLine = new fabric.Line([x, y, x, 0.9 * canvasHeight], {
+    this.tempVerticalLine = new fabric.Line([x, y, x, 0.85 * canvasHeight], {
       stroke: strokeColor,
       strokeWidth: strokeWidth,
       selectable: false,
@@ -208,14 +209,14 @@ class CoordinateTool extends FabricTool {
     })
 
     let xx =
-      ((this.scaleFactors[1] - this.scaleFactors[0]) *
-        (x - this.scaleFactors[2] * canvasWidth)) /
-      (this.scaleFactors[3] * canvasWidth)
+      ((x - this.scaleFactors[3]) /
+        (canvasWidth - this.scaleFactors[3] - this.scaleFactors[5])) *
+      this.scaleFactors[0]
     let yy =
       this.scaleFactors[1] -
-      ((this.scaleFactors[1] - this.scaleFactors[0]) *
-        (y - this.scaleFactors[2] * canvasHeight)) /
-        (this.scaleFactors[3] * canvasHeight)
+      ((y - this.scaleFactors[4]) /
+        (canvasHeight - this.scaleFactors[4] - this.scaleFactors[2])) *
+        this.scaleFactors[1]
     this.tempCoordinatesText = new fabric.Text(
       `(${xx.toFixed(0)}, ${yy.toFixed(0)})`,
       //`(${x.toFixed(0)}, ${y.toFixed(0)})`,

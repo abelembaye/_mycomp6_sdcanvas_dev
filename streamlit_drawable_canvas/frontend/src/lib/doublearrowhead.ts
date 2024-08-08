@@ -2,7 +2,7 @@
 import { fabric } from "fabric"
 import FabricTool, { ConfigureCanvasProps } from "./fabrictool"
 
-class SingleArrowHeadTool extends FabricTool {
+class DoubleArrowHeadTool extends FabricTool {
   isMouseDown: boolean = false
   strokeWidth: number = 10
   // yy2: number = 0
@@ -149,4 +149,4 @@ class SingleArrowHeadTool extends FabricTool {
   }
 }
 
-export default SingleArrowHeadTool
+export default DoubleArrowHeadTool

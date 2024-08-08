@@ -1,9 +1,9 @@
 Metadata-Version: 2.1
 Name: streamlit-drawable-canvas
-Version: 0.9.3.0
+Version: 0.9.3.10
 Summary: A Streamlit custom component for a free drawing canvas using Fabric.js.
 Home-page: https://github.com/andfanilo/streamlit-drawable-canvas
-Author: Fanilo ANDRIANASOLO
+Author: Fanilo ANDRIANASOLO, modified
 Author-email: contact@andfanilo.com
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown

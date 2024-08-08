@@ -66,7 +66,8 @@ def st_canvas(
     initial_drawing: dict = None,
     display_toolbar: bool = True,
     point_display_radius: int = 3,
-    scaleFactors: list = [1, 1, 1, 1],  # <-- Add scaleFactors parameter
+    scaleFactors: list = [1, 1, 1, 1, 1, 1],  # <-- Add scaleFactors parameter
+    axes_and_labels: bool = True,
     key=None,
 ) -> CanvasResult:
     """Create a drawing canvas in Streamlit app. Retrieve the RGBA image data into a 4D numpy array (r, g, b, alpha)
@@ -151,6 +152,7 @@ def st_canvas(
         displayToolbar=display_toolbar,
         displayRadius=point_display_radius,
         scaleFactors=scaleFactors,  # <-- Add scaleFactors here
+        axes_and_labels=axes_and_labels,
         key=key,
         default=None,
     )

@@ -1,0 +1,25 @@
+# cd into the folder and issue:
+Get-ChildItem | Select-Object -ExpandProperty Name  # prints to the terminal
+
+Get-ChildItem | Select-Object -ExpandProperty Name | Out-File -FilePath folder_structure.txt  # if you want to output it into .txt file 
+
+src/
+├── components/
+│   ├── CanvasToolbar.module.css
+│   ├── CanvasToolbar.tsx
+│   └── UpdateStreamlit.tsx
+├── img/
+├── lib/
+│   ├── circle.ts
+│   ├── coordinate.ts
+│   ├── curve.ts
+│   ├── doublearrowhead.ts
+│   ├── fabrictool.ts
+│   ├── freedraw.ts
+│   ├── index.ts
+│   └── line.ts
+├── DrawableCanvas.tsx
+├── DrawableCanvasState.tsx
+├── index.css
+├── index.tsx
+└── react-app-env.d.ts

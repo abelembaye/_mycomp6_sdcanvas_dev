@@ -25,6 +25,7 @@ class TextTool extends FabricTool {
         let text = new fabric.IText(userInput, {
           left: pointer.x,
           top: pointer.y,
+          fontSize: 25,
           selectable: false,
           evented: false,
         })
